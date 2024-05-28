@@ -13,7 +13,7 @@ pip install -r requirements.txt
 
 0. **Setup**
 
-    Users should create a `weights` folder and place weights `i3d.pt` and `resnext-101.pth` in it.
+    Users should create a `weights` folder and place weights `i3d.pt` and `resnext-101.pth` in it. (weights could be found in [GoogleDrive](https://drive.google.com/drive/folders/1hYfZPkqF8GX9e3KOg28NPOe9CPG-Fyk6?usp=drive_link))
     
     Remember to modify `configs/config.yaml` according to your needs.
 
