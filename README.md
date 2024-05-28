@@ -1,27 +1,26 @@
-# FID/FVD Metrics
+# VFID Metrics
 
-This repository provides a toolkit for computing Fréchet Inception Distance (FID) and Fréchet Video Distance (FVD) metrics, widely utilized for assessing the quality of generative models in the fields of image and video generation.
+This repository is modified from [fid-metrics](https://github.com/npurson/fid-metrics) and provides a toolkit for computing Video Fréchet Inception Distance (VFID) metrics, widely utilized for assessing the quality of generative models in the fields of video generation.
 
 ## Installation
 
-    ```bash
-    pip install -r requirements.txt
-    ```
+```bash
+pip install -r requirements.txt
+```
 
 ## Usage
 
-In the absence of setting up the package, users can currently utilize it by the following as a temporal fix.
 
 0. **Setup**
 
-    ```shell
-    export PYTHONPATH=`pwd`:$PYTHONPATH
-    ```
+    Users should create a `weights` folder and place weights `i3d.pt` and `resnext-101.pth` in it.
+    
+    Remember to modify `configs/config.yaml` according to your needs.
 
 1. **Calculating FID/FVD**
 
     ```shell
-    python fid_metrics/main.py paths=[path1,path2]
+    python fid_metrics/main.py
     ```
 
 ## Acknowledgements

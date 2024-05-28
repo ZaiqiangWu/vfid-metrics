@@ -10,6 +10,7 @@ from fid_metrics import (
     VideoDataset,
     build_inception,
     build_inception3d,
+    build_resnet3d,
     calculate_fid,
     is_image_dir_path,
     is_video_path,
@@ -43,11 +44,14 @@ def build_loaders(type, paths, cfg):
     return dls
 
 
-def build_model(type, cfg):
+def build_model(type, cfg, modeltype, sample_duration):
     if type == 'fid':
         return build_inception(cfg.dims)
     elif type == 'fvd':
-        return build_inception3d(cfg.path)
+        if modeltype == 'i3d':
+            return build_inception3d(cfg.path)
+        elif modeltype == 'resnext':
+            return build_resnet3d(cfg.path, sample_duration=sample_duration)
     else:
         raise NotImplementedError
 
@@ -62,7 +66,7 @@ def main(cfg: DictConfig):
     for metric_cfgs in cfg.metrics:
         type = metric_cfgs.type
         dls = build_loaders(type, cfg.paths, metric_cfgs.data)
-        model = build_model(type, metric_cfgs.model).to(device).eval()
+        model = build_model(type, metric_cfgs.model, modeltype=metric_cfgs.model.modeltype, sample_duration=metric_cfgs.data.dataset.sequence_length).to(device).eval()
 
         feats = [[], []]
         for i, dl in enumerate(dls):
@@ -84,7 +88,10 @@ def main(cfg: DictConfig):
                         pred = postprocess_i2d_pred(pred)
                     elif type == 'fvd':
                         pred = model.extract_features(x)
-                        pred = pred.squeeze(3).squeeze(3).mean(2)
+                        if metric_cfgs.model.modeltype == 'i3d':
+                            pred = pred.squeeze(3).squeeze(3).mean(2)
+                        elif metric_cfgs.model.modeltype == 'resnext':
+                            pass
                 feats[i].append(pred.cpu().numpy())
             feats[i] = np.concatenate(feats[i], axis=0)
         fid = calculate_fid(*feats)

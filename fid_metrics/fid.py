@@ -38,7 +38,7 @@ from torch.nn.functional import adaptive_avg_pool2d
 
 from fid_metrics.inception import InceptionV3
 from fid_metrics.inception3d import InceptionI3d
-from fid_metrics.resnet3d import resnet50
+from fid_metrics.resnext3d import resnet101
 
 
 def build_inception(dims):
@@ -54,15 +54,17 @@ def build_inception(dims):
 
 def build_inception3d(path):
     model = InceptionI3d(400, in_channels=3)
-    model.load_state_dict(torch.load(path))
+    missing_keys, unexpected_keys = model.load_state_dict(torch.load(path))
+    print(f"Missing keys: {missing_keys}")
+    print(f"Unexpected keys: {unexpected_keys}")
     return model
 
 
 def build_resnet3d(path, sample_duration=16):
-    model = resnet50(
+    model = resnet101(
         num_classes=400,
         shortcut_type="B",
-        sample_size=112,
+        sample_size=224,
         sample_duration=sample_duration,
         last_fc=False)
     model_sd = torch.load(path, map_location='cpu')
@@ -70,7 +72,9 @@ def build_resnet3d(path, sample_duration=16):
     for k, v in model_sd['state_dict'].items():
         model_sd_new[k.replace('module.', '')] = v
 
-    model.load_state_dict(model_sd_new)
+    missing_keys, unexpected_keys = model.load_state_dict(model_sd_new)
+    print(f"Missing keys: {missing_keys}")
+    print(f"Unexpected keys: {unexpected_keys}")
     return model
 
 

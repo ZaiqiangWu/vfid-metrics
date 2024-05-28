@@ -1,6 +1,7 @@
 import bisect
 import glob
 from typing import List
+import os
 
 import cv2
 import torch
@@ -28,7 +29,7 @@ class SequeceTransform:
 
 
 class ImageDataset(Dataset):
-    def __init__(self, image_dirs, resize_shape=(256, 512), ext='jpg'):
+    def __init__(self, image_dirs, resize_shape=(256, 512), ext='png'):
         self.image_dirs = glob.glob(image_dirs)
         self.transforms = T.Compose([T.ToTensor(), T.Resize(resize_shape)])
 
@@ -55,17 +56,20 @@ class ImageSequenceDataset(Dataset):
         image_dirs,
         sequence_length=16,
         resize_shape=(224, 224),
-        ext='jpg',
+        ext='png',
         no_overlap=True,
     ):
         self.image_dirs = glob.glob(image_dirs)
         self.sequence_length = sequence_length
         self.no_overlap = no_overlap
-        self.transforms = SequeceTransform(T.Compose([T.ToTensor(), T.Resize(resize_shape)]))
+        self.transforms = SequeceTransform(T.Compose([
+            T.ToTensor(), 
+            T.Resize(resize_shape),
+        ]))
 
         self.frame_paths = []
         for image_dir in self.image_dirs:
-            frame_paths = sorted(glob.glob(image_dir + (f'/*.{ext}' if ext else '/*')))
+            frame_paths = sorted(glob.glob(image_dir + (f'/*.{ext}' if ext else '/*')), key=lambda x: int(os.path.basename(x).split('.')[0].split('frame_')[-1]))
             self.frame_paths.extend(frame_paths)
         print(f'Loaded {len(self.frame_paths)} images')
 
@@ -137,7 +141,7 @@ class VideoDataset(Dataset):
         return frames
 
 
-def is_image_dir_path(path, ext='jpg'):
+def is_image_dir_path(path, ext='png'):
     return len(glob.glob(path + (f'/*.{ext}' if ext else '/*'))) > 0
 
 
