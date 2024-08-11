@@ -87,8 +87,9 @@ def main(cfg: DictConfig):
                         pred = model(x)
                         pred = postprocess_i2d_pred(pred)
                     elif type == 'fvd':
-                        print(x.shape)
+                        print(x.shape)#torch.Size([4, 3, 10, 224, 224])
                         pred = model.extract_features(x)
+                        print(pred.shape)
                         if metric_cfgs.model.modeltype == 'i3d':
                             pred = pred.squeeze(3).squeeze(3).mean(2)
                         elif metric_cfgs.model.modeltype == 'resnext':
