@@ -87,6 +87,7 @@ def main(cfg: DictConfig):
                         pred = model(x)
                         pred = postprocess_i2d_pred(pred)
                     elif type == 'fvd':
+                        print(x.shape)
                         pred = model.extract_features(x)
                         if metric_cfgs.model.modeltype == 'i3d':
                             pred = pred.squeeze(3).squeeze(3).mean(2)
